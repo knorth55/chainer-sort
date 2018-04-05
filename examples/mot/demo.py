@@ -43,6 +43,9 @@ def main():
             n_fg_class=len(voc_bbox_label_names),
             pretrained_model=args.pretrained_model)
 
+    detector.nms_thresh = 0.3
+    detector.score_thresh = 0.5
+
     if args.gpu >= 0:
         chainer.cuda.get_device_from_id(args.gpu).use()
         detector.to_gpu()

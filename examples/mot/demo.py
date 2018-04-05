@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 
 import chainer
 from chainercv.datasets import voc_bbox_label_names
+from chainercv.links import FasterRCNNVGG16
 from chainercv.links import SSD300
 from chainercv.links import SSD512
 from chainercv.visualizations import vis_bbox
@@ -15,9 +16,11 @@ from chainer_sort.datasets import MOTDataset
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--model', choices=('ssd300', 'ssd512'), default='ssd512')
+        '--model', choices=('ssd300', 'ssd512', 'faster-rcnn-vgg16'),
+        default='ssd512')
     parser.add_argument('--gpu', type=int, default=-1)
-    parser.add_argument('--pretrained_model', default='voc0712')
+    parser.add_argument(
+        '--pretrained_model', choices=('voc0712', 'voc07'), default='voc0712')
     parser.add_argument('--sequence', '-s', default='c2-train')
     args = parser.parse_args()
 
@@ -30,6 +33,10 @@ def main():
             pretrained_model=args.pretrained_model)
     elif args.model == 'ssd512':
         detector = SSD512(
+            n_fg_class=len(voc_bbox_label_names),
+            pretrained_model=args.pretrained_model)
+    elif args.model == 'faster_rcnn_vgg16':
+        detector = FasterRCNNVGG16(
             n_fg_class=len(voc_bbox_label_names),
             pretrained_model=args.pretrained_model)
 

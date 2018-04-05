@@ -31,7 +31,10 @@ class SORTMultiObjectTracker():
                 det_bbox.append(bb[None])
                 det_label.append(lbl)
                 det_score.append(sc)
-        det_bbox = np.concatenate(det_bbox)
+        if len(det_bbox) > 0:
+            det_bbox = np.concatenate(det_bbox)
+        else:
+            det_bbox = np.array(det_bbox).reshape((0, 4))
         det_label = np.array(det_label)
         det_score = np.array(det_score)
 

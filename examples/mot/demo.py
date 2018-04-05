@@ -8,11 +8,11 @@ from chainercv.datasets import voc_bbox_label_names
 from chainercv.links import FasterRCNNVGG16
 from chainercv.links import SSD300
 from chainercv.links import SSD512
-from chainercv.visualizations import vis_bbox
 
 from chainer_sort.models import SORTMultiObjectTracker
 from chainer_sort.datasets.mot.mot_utils import get_sequence_map
 from chainer_sort.datasets import MOTDataset
+from chainer_sort.visualizations import vis_tracking_bbox
 
 
 def main():
@@ -74,11 +74,12 @@ def main():
             cycle_times.append(cycle_time)
             if args.display:
                 bbox = bboxes[0]
+                inst_id = inst_ids[0]
                 label = labels[0]
                 score = scores[0]
-                inst_id = inst_ids[0]
-                vis_bbox(img, bbox, label, score,
-                         label_names=voc_bbox_label_names, ax=ax)
+                vis_tracking_bbox(
+                    img, bbox, inst_id, label, score,
+                    label_names=voc_bbox_label_names, ax=ax)
                 fig.canvas.flush_events()
                 plt.draw()
                 ax.cla()

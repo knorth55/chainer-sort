@@ -17,12 +17,13 @@ class SORTMultiBboxTracker(object):
         self.frame_count += 1
         pred_bboxes = []
         valid_trackers = []
-        for tracker in self.trackers:
-            pred_bbox = tracker.predict()[0]
-            if np.all(~np.isnan(pred_bbox)) or np.all(~np.isinf(pred_bbox)):
+        for i, tracker in enumerate(self.trackers):
+            pred_bbox = tracker.predict()
+            if np.all(~np.isnan(pred_bbox)) and np.all(~np.isinf(pred_bbox)):
                 valid_trackers.append(tracker)
                 pred_bboxes.append(pred_bbox)
         self.trackers = valid_trackers
+
         if len(pred_bboxes) > 0:
             pred_bboxes = np.concatenate(pred_bboxes)
         else:
@@ -33,31 +34,37 @@ class SORTMultiBboxTracker(object):
             det_bboxes, pred_bboxes)
 
         # update matched trackers
-        for i, tracker in enumerate(self.trackers):
-            matched_det_index = matched_det_indices[matched_pred_indices == i]
-            tracker.update(det_bboxes[matched_det_index, :])
-
         # create new trackers for unmatched detections
+        new_trackers = []
+        trk_det_indices = []
+        trk_bboxes = []
+        trk_inst_ids = []
         for det_index, det_bbox in enumerate(det_bboxes):
-            if det_index not in matched_det_indices:
+            # matched
+            if det_index in matched_det_indices:
+                pred_index = matched_pred_indices[
+                    matched_det_indices == det_index]
+                tracker = self.trackers[int(pred_index)]
+                tracker.update(det_bbox[None])
+            # not matched
+            else:
                 tracker = KalmanBboxTracker(det_bbox[None])
                 tracker.id = self.tracker_num
                 self.tracker_num += 1
-                self.trackers.append(tracker)
 
-        new_trackers = []
-        res_bboxes = []
-        res_inst_id = []
-        for tracker in self.trackers:
-            res_bbox = tracker.get_state()[0]
             if tracker.time_since_update < 1 \
                 and (tracker.hit_streak >= self.min_hit_streak
                      or self.frame_count <= self.min_hit_streak):
-                res_bboxes.append(res_bbox)
-                res_inst_id.append(tracker.id)
+                trk_det_indices.append(det_index)
+                trk_bbox = tracker.get_state()[0]
+                trk_bboxes.append(trk_bbox)
+                trk_inst_ids.append(tracker.id)
+
             if tracker.time_since_update <= self.max_age:
                 new_trackers.append(tracker)
         self.trackers = new_trackers
-        res_bboxes = np.array(res_bboxes, dtype=float).reshape((-1, 4))
-        res_inst_id = np.array(res_inst_id, dtype=int)
-        return res_bboxes, res_inst_id
+
+        trk_det_indices = np.array(trk_det_indices, dtype=int)
+        trk_bboxes = np.array(trk_bboxes, dtype=float).reshape((-1, 4))
+        trk_inst_ids = np.array(trk_inst_ids, dtype=int)
+        return trk_det_indices, trk_bboxes, trk_inst_ids

@@ -56,4 +56,4 @@ class MOTDataset(chainer.dataset.DatasetMixin):
         else:
             inst_id = self.id2inst_id[data_id]
             bbox = self.id2bbox[data_id]
-        return img, inst_id, bbox
+        return img, bbox, inst_id

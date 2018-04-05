@@ -45,9 +45,9 @@ class SORTMultiBboxTracker(object):
                 self.tracker_num += 1
                 self.trackers.append(tracker)
 
-        res_inst_id = []
-        res_bboxes = []
         new_trackers = []
+        res_bboxes = []
+        res_inst_id = []
         for tracker in self.trackers:
             res_bbox = tracker.get_state()[0]
             if tracker.time_since_update < 1 \
@@ -58,6 +58,6 @@ class SORTMultiBboxTracker(object):
             if tracker.time_since_update <= self.max_age:
                 new_trackers.append(tracker)
         self.trackers = new_trackers
-        res_inst_id = np.array(res_inst_id, dtype=int)
         res_bboxes = np.array(res_bboxes, dtype=float).reshape((-1, 4))
-        return res_inst_id, res_bboxes
+        res_inst_id = np.array(res_inst_id, dtype=int)
+        return res_bboxes, res_inst_id

@@ -12,6 +12,7 @@ class SORTMultiBboxTracker(object):
         self.trackers = []
         self.frame_count = 0
         self.tracker_num = 0
+        self.inst_ids = []
 
     def update(self, det_bboxes):
         self.frame_count += 1
@@ -58,7 +59,12 @@ class SORTMultiBboxTracker(object):
                 trk_det_indices.append(det_index)
                 trk_bbox = tracker.get_state()[0]
                 trk_bboxes.append(trk_bbox)
-                trk_inst_ids.append(tracker.id)
+                if tracker.id in self.inst_ids:
+                    trk_inst_id = self.inst_ids.index(tracker.id)
+                else:
+                    self.inst_ids.append(tracker.id)
+                    trk_inst_id = len(self.inst_ids)
+                trk_inst_ids.append(trk_inst_id)
 
             if tracker.time_since_update <= self.max_age:
                 new_trackers.append(tracker)

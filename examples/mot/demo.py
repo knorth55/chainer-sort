@@ -24,10 +24,12 @@ def main():
     parser.add_argument('--gpu', type=int, default=0)
     parser.add_argument(
         '--pretrained_model', choices=('voc0712', 'voc07'), default='voc0712')
-    parser.add_argument('--sequence', '-s', default='c2-train')
+    parser.add_argument('--sequence', '-s', default='c2-test')
     args = parser.parse_args()
 
     map_name, split = args.sequence.split('-')
+    if split == 'test':
+        split = 'val'
     sequences = get_sequence_map(split, map_name)
 
     if args.model == 'ssd300':

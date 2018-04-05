@@ -1,6 +1,8 @@
 from __future__ import division
 
+from chainercv.utils import bbox_iou
 import numpy as np
+from sklearn.utils.linear_assignment_ import linear_assignment
 
 
 def bbox2z_bbox(bbox):
@@ -33,3 +35,9 @@ def z_bbox2bbox(z_bbox):
          y_max[:, None], x_max[:, None]),
         axis=1)
     return bbox
+
+
+def iou_linear_assignment(bbox_a, bbox_b):
+    iou = bbox_iou(bbox_a, bbox_b)
+    indices = linear_assignment(-iou)
+    return indices[:, 0], indices[:, 1]

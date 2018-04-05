@@ -1,5 +1,7 @@
 import argparse
 import matplotlib.pyplot as plt
+import numpy as np
+import time
 
 import chainer
 from chainercv.datasets import voc_bbox_label_names
@@ -15,10 +17,11 @@ from chainer_sort.datasets import MOTDataset
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--display', action='store_true')
     parser.add_argument(
         '--model', choices=('ssd300', 'ssd512', 'faster-rcnn-vgg16'),
         default='ssd512')
-    parser.add_argument('--gpu', type=int, default=-1)
+    parser.add_argument('--gpu', type=int, default=0)
     parser.add_argument(
         '--pretrained_model', choices=('voc0712', 'voc07'), default='voc0712')
     parser.add_argument('--sequence', '-s', default='c2-train')
@@ -46,10 +49,14 @@ def main():
 
     sort_label_names = ['person']
 
-    plt.ion()
-    fig = plt.figure()
+    if args.display:
+        plt.ion()
+        fig = plt.figure()
 
     for seq in sequences:
+        if args.display:
+            ax = fig.add_subplot(111, aspect='equal')
+
         dataset = MOTDataset(
             year='2015', split=split, sequence=seq)
 
@@ -57,19 +64,28 @@ def main():
             detector, voc_bbox_label_names,
             sort_label_names)
 
-        ax = fig.add_subplot(111, aspect='equal')
+        print('Sequence: {}'.format(seq))
+        cycle_times = []
         for i in range(len(dataset)):
             img, _, _ = dataset[i]
+            start_time = time.time()
             bboxes, labels, scores, inst_ids = tracker.predict([img])
-            bbox = bboxes[0]
-            label = labels[0]
-            score = scores[0]
-            inst_id = inst_ids[0]
-            vis_bbox(img, bbox, label, score,
-                     label_names=voc_bbox_label_names, ax=ax)
-            fig.canvas.flush_events()
-            plt.draw()
-            ax.cla()
+            cycle_time = time.time() - start_time
+            cycle_times.append(cycle_time)
+            if args.display:
+                bbox = bboxes[0]
+                label = labels[0]
+                score = scores[0]
+                inst_id = inst_ids[0]
+                vis_bbox(img, bbox, label, score,
+                         label_names=voc_bbox_label_names, ax=ax)
+                fig.canvas.flush_events()
+                plt.draw()
+                ax.cla()
+
+        cycle_times = np.array(cycle_times)
+        print('total time: {}'.format(np.sum(cycle_times)))
+        print('average time: {}'.format(np.average(cycle_times)))
 
 
 if __name__ == '__main__':

@@ -1,5 +1,6 @@
 chainer-sort - SORT
 ===================
+![Build Status](https://travis-ci.org/knorth55/chainer-sort.svg?branch=master)
 
 This is [Simple, Online, Realtime Tracking of Multiple Objects](https://arxiv.org/abs/1602.00763) implementation for chainer and chainercv.
 

@@ -9,9 +9,9 @@ from chainercv.links import FasterRCNNVGG16
 from chainercv.links import SSD300
 from chainercv.links import SSD512
 
-from chainer_sort.models import SORTMultiObjectTracking
 from chainer_sort.datasets.mot.mot_utils import get_sequences
 from chainer_sort.datasets import MOTDataset
+from chainer_sort.models import SORTMultiObjectTracking
 from chainer_sort.visualizations import vis_tracking_bbox
 
 

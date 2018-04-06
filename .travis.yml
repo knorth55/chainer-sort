@@ -1,0 +1,34 @@
+language: python
+
+cache:
+  - ccache
+  - pip
+
+matrix:
+  include:
+    - os: linux
+      python: 2.7
+
+before_install:
+  - wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - conda info -a
+
+install:
+  - conda create --name=chainer-sort python=$TRAVIS_PYTHON_VERSION -q -y
+  - source activate chainer-sort
+  - pip install -r requirements.txt
+  - pip install -e .
+
+before_script:
+  - pip install flake8
+  - pip install hacking
+
+script:
+  - flake8 .
+
+notifications:
+  email: false

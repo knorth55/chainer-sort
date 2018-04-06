@@ -26,12 +26,14 @@ class MOTDataset(chainer.dataset.DatasetMixin):
         if sequence in mot_map_names:
             if (year == '2015' and sequence not in ['c2', 'c3', 'c4']) \
                     or (year == '2016' and sequence != 'c5') \
-                    or (year == '2017' and sequence not in ['c9', 'c10']):
+                    or (year == '2017' and sequence != 'c9'):
                 raise ValueError
-            seq_map = mot_utils.get_sequence_map(split, sequence)
-            self.ids = [id_ for id_ in ids if id_.split('_')[1] in seq_map]
-        elif sequence in mot_sequence_names[year]:
-            self.ids = [id_ for id_ in ids if id_.split('_')[1] == sequence]
+            sequences = mot_utils.get_sequences(split, sequence)
+            self.ids = [id_ for id_ in ids if id_.split('_')[1] in sequences]
+        elif sequence.startswith(tuple(mot_sequence_names[year])):
+            self.ids = [
+                id_ for id_ in ids if id_.split('_')[1].startswith(sequence)
+            ]
         else:
             raise ValueError
 

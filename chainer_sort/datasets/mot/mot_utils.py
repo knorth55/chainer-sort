@@ -9,9 +9,11 @@ root = 'pfnet/chainercv/mot'
 dev_urls = 'http://motchallenge.net/data/devkit.zip'
 urls = {
     '2015': 'http://motchallenge.net/data/2DMOT2015.zip',
+    '2016': 'http://motchallenge.net/data/MOT16.zip',
+    '2017': 'http://motchallenge.net/data/MOT17.zip',
 }
 
-mot_map_names = ['c2', 'c3', 'c4', 'c5', 'c8', 'c9', 'c10']
+mot_map_names = ['c2', 'c3', 'c4', 'c5', 'c9']
 mot_sequence_names = {
     '2015': [
         'TUD-Stadtmitte',
@@ -38,6 +40,9 @@ mot_sequence_names = {
         'Venice-1',
     ]
 }
+
+mot_sequence_names['2016'] = ['MOT16-{0:02d}'.format(i) for i in range(1, 15)]
+mot_sequence_names['2017'] = ['MOT17-{0:02d}'.format(i) for i in range(1, 15)]
 
 
 def load_gt(data_dir, data_ids):
@@ -79,7 +84,7 @@ def _load_gt(data_dir, split_d, seq_d):
     return gt_dict
 
 
-def get_sequence_map(split, map_name):
+def get_sequences(split, map_name):
     if split == 'train':
         splits = ['train']
     elif split == 'val':
@@ -102,6 +107,8 @@ def get_sequence_map(split, map_name):
         with open(seqmap_path, 'r') as f:
             seq_m = f.read().split('\n')
         seq_map.extend(seq_m[1:-1])
+    if map_name == 'c9':
+        seq_map = ['{}-DPM'.format(x) for x in seq_map]
     return seq_map
 
 
@@ -110,45 +117,47 @@ def get_mot(year, split):
         raise ValueError
 
     data_root = download.get_dataset_directory(root)
-    base_path = os.path.join(data_root, '2DMOT{}'.format(year))
+    if year == '2015':
+        mot_dirname = '2DMOT{}'.format(year)
+    else:
+        mot_dirname = 'MOT{}'.format(year[2:])
+    base_path = os.path.join(data_root, mot_dirname)
     anno_path = os.path.join(base_path, 'annotations')
     anno_txt_path = os.path.join(anno_path, '{}.txt'.format(split))
 
-    # if os.path.exists(anno_txt_path):
-    #     return base_path
-    #
-    # download_file_path = utils.cached_download(urls[year])
-    # ext = os.path.splitext(urls[year])[1]
-    # utils.extractall(download_file_path, data_root, ext)
+    if not os.path.exists(base_path):
+        download_file_path = utils.cached_download(urls[year])
+        ext = os.path.splitext(urls[year])[1]
+        utils.extractall(download_file_path, data_root, ext)
 
-    download_devfile_path = utils.cached_download(dev_urls)
-    dev_ext = os.path.splitext(dev_urls)[1]
-    utils.extractall(download_devfile_path, data_root, dev_ext)
+    if not os.path.exists(os.path.join(data_root, 'motchallenge-devkit')):
+        download_devfile_path = utils.cached_download(dev_urls)
+        dev_ext = os.path.splitext(dev_urls)[1]
+        utils.extractall(download_devfile_path, data_root, dev_ext)
 
     if not os.path.exists(anno_path):
         os.mkdir(anno_path)
+        if split == 'train':
+            split_dirs = ['train']
+        elif split == 'val':
+            split_dirs = ['test']
+        elif split == 'trainval':
+            split_dirs = ['train', 'test']
+        else:
+            raise ValueError
 
-    if split == 'train':
-        split_dirs = ['train']
-    elif split == 'val':
-        split_dirs = ['test']
-    elif split == 'trainval':
-        split_dirs = ['train', 'test']
-    else:
-        raise ValueError
+        data_ids = []
+        for split_d in split_dirs:
+            seq_dirs = sorted(os.listdir(os.path.join(base_path, split_d)))
+            for seq_d in seq_dirs:
+                img_dir = os.path.join(base_path, split_d, seq_d, 'img1')
+                img_names = sorted(os.listdir(img_dir))
+                for img_name in img_names:
+                    data_id = '{0}_{1}_{2}'.format(
+                        split_d, seq_d, img_name.split('.')[0])
+                    data_ids.append(data_id)
 
-    data_ids = []
-    for split_d in split_dirs:
-        seq_dirs = sorted(os.listdir(os.path.join(base_path, split_d)))
-        for seq_d in seq_dirs:
-            img_dir = os.path.join(base_path, split_d, seq_d, 'img1')
-            img_names = sorted(os.listdir(img_dir))
-            for img_name in img_names:
-                data_id = '{0}_{1}_{2}'.format(
-                    split_d, seq_d, img_name.split('.')[0])
-                data_ids.append(data_id)
-
-    with open(anno_txt_path, 'w') as anno_f:
-        anno_f.write('\n'.join(data_ids))
+        with open(anno_txt_path, 'w') as anno_f:
+            anno_f.write('\n'.join(data_ids))
 
     return base_path

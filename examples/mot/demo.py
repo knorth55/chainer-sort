@@ -10,7 +10,7 @@ from chainercv.links import SSD300
 from chainercv.links import SSD512
 
 from chainer_sort.models import SORTMultiObjectTracking
-from chainer_sort.datasets.mot.mot_utils import get_sequence_map
+from chainer_sort.datasets.mot.mot_utils import get_sequences
 from chainer_sort.datasets import MOTDataset
 from chainer_sort.visualizations import vis_tracking_bbox
 
@@ -24,13 +24,23 @@ def main():
     parser.add_argument('--gpu', type=int, default=0)
     parser.add_argument(
         '--pretrained_model', choices=('voc0712', 'voc07'), default='voc0712')
-    parser.add_argument('--sequence', '-s', default='c2-test')
+    parser.add_argument(
+        '--year', '-y', choices=('2015', '2016', '2017'), default='2015')
+    parser.add_argument('--sequence-map', '-s', default=None)
     args = parser.parse_args()
 
-    map_name, split = args.sequence.split('-')
+    if args.sequence_map is None:
+        if args.year == '2015':
+            seqmap_name = 'c2-test'
+        elif args.year == '2016':
+            seqmap_name = 'c5-test'
+        elif args.year == '2017':
+            seqmap_name = 'c9-test'
+
+    map_name, split = seqmap_name.split('-')
     if split == 'test':
         split = 'val'
-    sequences = get_sequence_map(split, map_name)
+    sequences = get_sequences(split, map_name)
 
     if args.model == 'ssd300':
         detector = SSD300(
@@ -62,7 +72,7 @@ def main():
             ax = fig.add_subplot(111, aspect='equal')
 
         dataset = MOTDataset(
-            year='2015', split=split, sequence=seq)
+            year=args.year, split=split, sequence=seq)
 
         model = SORTMultiObjectTracking(
             detector, voc_bbox_label_names,

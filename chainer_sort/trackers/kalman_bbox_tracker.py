@@ -1,5 +1,22 @@
-# this code is modified from original SORT code
-# https://github.com/abewley/sort
+# Modified work by Shingo Kitagawa (@knorth55)
+#
+# Original works of SORT from https://github.com/abewley/sort
+# ---------------------------------------------------------------------
+# Copyright (C) 2016 Alex Bewley alex@dynamicdetection.com
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# ---------------------------------------------------------------------
 
 
 import numpy as np
@@ -40,9 +57,7 @@ class KalmanBboxTracker(object):
 
         self.time_since_update = 0
         self.history = []
-        # self.hits = 0
         self.hit_streak = 0
-        # self.age = 0
 
     def get_state(self):
         bbox = z_bbox2bbox(self.filter.x[:4].T)
@@ -54,7 +69,6 @@ class KalmanBboxTracker(object):
 
         self.time_since_update = 0
         self.history = []
-        # self.hits += 1
         self.hit_streak += 1
         self.filter.update(bbox2z_bbox(bbox).T)
 
@@ -62,7 +76,6 @@ class KalmanBboxTracker(object):
         if (self.filter.x[2] + self.filter.x[6]) <= 0:
             self.filter.x[6] = 0.
         self.filter.predict()
-        # self.age += 1
         if self.time_since_update > 0:
             self.hit_streak = 0
         self.time_since_update += 1

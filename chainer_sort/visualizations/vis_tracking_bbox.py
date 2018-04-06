@@ -31,16 +31,14 @@ def vis_tracking_bbox(
     if len(bbox) == 0:
         return ax
 
-    colors = np.array([_default_cmap(l) for l in range(1, inst_id.max() + 2)])
-
     for i, (bb, inst_i) in enumerate(zip(bbox, inst_id)):
         bb = np.round(bb).astype(np.int32)
         y_min, x_min, y_max, x_max = bb
-        color = colors[inst_i]
+        color = np.array(_default_cmap(inst_i + 1)) / 255.
 
         ax.add_patch(plot.Rectangle(
             (x_min, y_min), x_max - x_min, y_max - y_min,
-            fill=False, edgecolor=color / 255, linewidth=3))
+            fill=False, edgecolor=color, linewidth=3))
 
         caption = []
         caption.append('{}'.format(inst_i))
@@ -57,5 +55,5 @@ def vis_tracking_bbox(
         ax.text((x_max + x_min) / 2, y_min,
                 ': '.join(caption),
                 style='italic',
-                bbox={'facecolor': color / 255, 'alpha': alpha},
+                bbox={'facecolor': color, 'alpha': alpha},
                 fontsize=8, color='white')

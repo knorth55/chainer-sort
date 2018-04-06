@@ -5,7 +5,7 @@ import chainer
 from chainer_sort.trackers import SORTMultiBboxTracker
 
 
-class SORTMultiObjectTracker():
+class SORTMultiObjectTracking():
 
     def __init__(self, dectector,
                  detector_label_names, tracking_label_names=None):

@@ -9,7 +9,7 @@ from chainercv.links import FasterRCNNVGG16
 from chainercv.links import SSD300
 from chainercv.links import SSD512
 
-from chainer_sort.models import SORTMultiObjectTracker
+from chainer_sort.models import SORTMultiObjectTracking
 from chainer_sort.datasets.mot.mot_utils import get_sequence_map
 from chainer_sort.datasets import MOTDataset
 from chainer_sort.visualizations import vis_tracking_bbox
@@ -64,7 +64,7 @@ def main():
         dataset = MOTDataset(
             year='2015', split=split, sequence=seq)
 
-        tracker = SORTMultiObjectTracker(
+        model = SORTMultiObjectTracking(
             detector, voc_bbox_label_names,
             sort_label_names)
 
@@ -73,7 +73,7 @@ def main():
         for i in range(len(dataset)):
             img, _, _ = dataset[i]
             start_time = time.time()
-            bboxes, labels, scores, inst_ids = tracker.predict([img])
+            bboxes, labels, scores, inst_ids = model.predict([img])
             cycle_time = time.time() - start_time
             cycle_times.append(cycle_time)
             if args.display:

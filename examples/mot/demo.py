@@ -20,7 +20,7 @@ def main():
     parser.add_argument('--display', action='store_true')
     parser.add_argument(
         '--model', choices=('ssd300', 'ssd512', 'faster-rcnn-vgg16'),
-        default='ssd512')
+        default='faster-rcnn-vgg16')
     parser.add_argument('--gpu', type=int, default=0)
     parser.add_argument(
         '--pretrained_model', choices=('voc0712', 'voc07'), default='voc0712')
@@ -50,7 +50,7 @@ def main():
         detector = SSD512(
             n_fg_class=len(voc_bbox_label_names),
             pretrained_model=args.pretrained_model)
-    elif args.model == 'faster_rcnn_vgg16':
+    elif args.model == 'faster-rcnn-vgg16':
         detector = FasterRCNNVGG16(
             n_fg_class=len(voc_bbox_label_names),
             pretrained_model=args.pretrained_model)

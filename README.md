@@ -13,7 +13,7 @@ This repository provides MOT dataset, SORT tracker class and SORT examples with 
 Notification
 ------------
 
-- This repository is the implementation of [SORT](https://arxiv.org/abs/1602.00763), not [DeepSORT](https://arxiv.org/abs/1703.070402)
+- This repository is the implementation of [SORT](https://arxiv.org/abs/1602.00763), not [DeepSORT](https://arxiv.org/abs/1703.07402)
 - SORT is based on Kalman filter and Hangarian algorithm and does not use deep learning techniques.
 - In this repo, we use deep learning techniques (FasterRCNN and SSD) for object detection part.
 

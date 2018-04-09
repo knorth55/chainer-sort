@@ -56,7 +56,6 @@ class KalmanBboxTracker(object):
         self.filter.x[:4] = bbox2z_bbox(bbox).T
 
         self.time_since_update = 0
-        self.history = []
         self.hit_streak = 0
 
     def get_state(self):
@@ -68,7 +67,6 @@ class KalmanBboxTracker(object):
             raise ValueError
 
         self.time_since_update = 0
-        self.history = []
         self.hit_streak += 1
         self.filter.update(bbox2z_bbox(bbox).T)
 
@@ -80,5 +78,4 @@ class KalmanBboxTracker(object):
             self.hit_streak = 0
         self.time_since_update += 1
         bbox = self.get_state()
-        self.history.append(bbox)
         return bbox

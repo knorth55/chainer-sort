@@ -17,7 +17,7 @@ from chainer_sort.visualizations import vis_tracking_bbox
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--display', action='store_true')
+    parser.add_argument('--no-display', action='store_true')
     parser.add_argument(
         '--model', choices=('ssd300', 'ssd512', 'faster-rcnn-vgg16'),
         default='faster-rcnn-vgg16')
@@ -63,12 +63,12 @@ def main():
 
     sort_label_names = ['person']
 
-    if args.display:
+    if not args.no_display:
         plt.ion()
         fig = plt.figure()
 
     for seq in sequences:
-        if args.display:
+        if args.no_display:
             ax = fig.add_subplot(111, aspect='equal')
 
         dataset = MOTDataset(
@@ -86,7 +86,7 @@ def main():
             bboxes, labels, scores, inst_ids = model.predict([img])
             cycle_time = time.time() - start_time
             cycle_times.append(cycle_time)
-            if args.display:
+            if args.no_display:
                 bbox = bboxes[0]
                 inst_id = inst_ids[0]
                 label = labels[0]

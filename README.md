@@ -44,5 +44,5 @@ Demo
 
 ```bash
 cd examples/mot/
-python demo.py --display
+python demo.py
 ```
